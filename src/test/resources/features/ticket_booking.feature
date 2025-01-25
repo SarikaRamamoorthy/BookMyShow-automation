@@ -11,8 +11,11 @@ Feature: Book movie ticket
 #  @Test
 #  Scenario: User selects their preferred location
 
-  	When the user searches the movie name
+#  	When the user searches the movie name
 
+  	When user selects the movie
+  	And user selects book ticket
+  	And user selects language and format
 
 #	Given I am on the movie booking website
 #	When I search for the movie "Sarika"

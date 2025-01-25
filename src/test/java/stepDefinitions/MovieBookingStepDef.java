@@ -6,6 +6,8 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testng.Assert;
 import pages.HomePage;
 
@@ -18,7 +20,7 @@ import io.cucumber.java.en.Given;
 
 public class MovieBookingStepDef {
 
-    private ChromeDriver chromeDriver;
+    private RemoteWebDriver webDriver;
     private Properties properties;
 
     private HomePage homePage;
@@ -26,7 +28,10 @@ public class MovieBookingStepDef {
 
     @Before
     public void initialize() {
-        chromeDriver = new ChromeDriver();
+
+//        webDriver = new ChromeDriver();
+        webDriver = new FirefoxDriver();
+        webDriver.manage().window().maximize();
 
         properties = new Properties();
         try {
@@ -38,7 +43,7 @@ public class MovieBookingStepDef {
             System.out.println("Exception found in loading properties into property file");
         }
 
-        homePage = new HomePage(chromeDriver, properties);
+        homePage = new HomePage(webDriver, properties);
 
         location = properties.getProperty("location");
     }
@@ -74,8 +79,23 @@ public class MovieBookingStepDef {
         Assert.assertEquals(actualLocation, location, "Location mismatch");
     }
 
-    @When("the user searches the movie name")
-    public void theUserSearchesTheMovieName() {
-        homePage.searchMovie();
+    @When("user selects the movie")
+    public void userSelectsTheMovie() {
+        homePage.selectMovie();
     }
+
+    @And("user selects book ticket")
+    public void userSelectsBookTicket() {
+        homePage.selectBookTicket();
+    }
+
+    @And("user selects language and format")
+    public void userSelectsLanguageAndFormat() {
+        homePage.selectLanguageAndFormat();
+    }
+
+//    @When("the user searches the movie name")
+//    public void theUserSearchesTheMovieName() {
+//        homePage.searchMovie();
+//    }
 }

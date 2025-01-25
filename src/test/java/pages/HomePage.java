@@ -3,7 +3,7 @@ package pages;
 import locators.HomePageLocators;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -12,13 +12,13 @@ import java.util.List;
 import java.util.Properties;
 
 public class HomePage {
-    private ChromeDriver chromeDriver;
+    private RemoteWebDriver chromeDriver;
     private WebElement citySearchBar;
     private WebDriverWait wait;
     //TODO: if wait not used anywhere else move inside citySuggestion
 
 
-    public HomePage(ChromeDriver chromeDriver, Properties properties) {
+    public HomePage(RemoteWebDriver chromeDriver, Properties properties) {
         this.chromeDriver = chromeDriver;
         this.wait = new WebDriverWait(chromeDriver, Duration.ofSeconds(10));
     }
@@ -48,10 +48,28 @@ public class HomePage {
         return chromeDriver.findElement(location);
     }
 
-    public void searchMovie() {
-        WebElement movieSearchBar = chromeDriver.findElement(By.xpath(HomePageLocators.MOVIE_SEARCHBAR));
-        movieSearchBar.click();
-        WebElement moviesSearchBar = chromeDriver.findElement(By.xpath(HomePageLocators.MOVIES_SEARCHBAR));
-        moviesSearchBar.sendKeys("Kudumbasthan");
+    public void selectMovie() {
+        By movie = By.xpath(HomePageLocators.MOVIE);
+        wait.until(ExpectedConditions.elementToBeClickable(movie));
+        chromeDriver.findElement(movie).click();
     }
+
+    public void selectBookTicket() {
+        By movie = By.xpath(HomePageLocators.BOOK_TICKET);
+        wait.until(ExpectedConditions.elementToBeClickable(movie));
+        chromeDriver.findElement(movie).click();
+    }
+
+    public void selectLanguageAndFormat() {
+        By languageAndFormat = By.xpath(HomePageLocators.LANGUAGE_AND_FORMAT);
+        wait.until(ExpectedConditions.elementToBeClickable(languageAndFormat));
+        chromeDriver.findElement(languageAndFormat).click();
+    }
+
+//    public void searchMovie() {
+//        WebElement movieSearchBar = chromeDriver.findElement(By.xpath(HomePageLocators.MOVIE_SEARCHBAR));
+//        movieSearchBar.click();
+//        WebElement moviesSearchBar = chromeDriver.findElement(By.xpath(HomePageLocators.MOVIES_SEARCHBAR));
+//        moviesSearchBar.sendKeys("Kudumbasthan");
+//    }
 }
