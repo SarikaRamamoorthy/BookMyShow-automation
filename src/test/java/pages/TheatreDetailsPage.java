@@ -21,6 +21,8 @@ public class TheatreDetailsPage {
     @FindBy(xpath = TheatreDetailsPageLocators.AVAILABLE_SLOT)
     List<WebElement> availableSlots;
 
+    By venue = By.xpath("ancestor::li//div[@class='__name ']//a[@class='__venue-name']");
+
     public TheatreDetailsPage() {
         PageFactory.initElements(webDriver, this);
     }
@@ -38,7 +40,7 @@ public class TheatreDetailsPage {
     }
 
     public String getTheatreName(WebElement movieElement) {
-        WebElement theatreNameElement = movieElement.findElement(By.xpath("ancestor::li//div[@class='__name ']//a[@class='__venue-name']"));
+        WebElement theatreNameElement = movieElement.findElement(venue);
         return theatreNameElement.getText();
     }
 }

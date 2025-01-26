@@ -28,6 +28,7 @@ public class MovieBookingStepDef {
     private MovieDetailsPage movieDetailsPage;
     private TheatreDetailsPage theatreDetailsPage;
     private SeatPopUp seatPopUp;
+    private TheatreSeatSelectionPage theatreSeatSelectionPage;
 
     private String location;
     private String movieName;
@@ -50,6 +51,7 @@ public class MovieBookingStepDef {
         locationPopUp = new LocationPopUp();
         movieDetailsPage = new MovieDetailsPage();
         seatPopUp = new SeatPopUp();
+        theatreSeatSelectionPage = new TheatreSeatSelectionPage();
 
         location = properties.getProperty("location");
     }
@@ -116,12 +118,12 @@ public class MovieBookingStepDef {
     public void theUserSelectsATheatreAndShowTimingsPrioritizingFastFillingOrAnAvailableSlot() {
         List<WebElement> fastFillingSlots = theatreDetailsPage.getFastFillingSlots();
         if (!fastFillingSlots.isEmpty()) {
-            theatreName = theatreDetailsPage.getTheatreName(fastFillingSlots.getFirst());
-            fastFillingSlots.getFirst().click();
+            theatreName = theatreDetailsPage.getTheatreName(fastFillingSlots.get(0));
+            fastFillingSlots.get(0).click();
         } else {
             List<WebElement> availableSlots = theatreDetailsPage.getAvailableSlots();
-            theatreName = theatreDetailsPage.getTheatreName(availableSlots.getFirst());
-            availableSlots.getFirst().click();
+            theatreName = theatreDetailsPage.getTheatreName(availableSlots.get(0));
+            availableSlots.get(0).click();
         }
     }
 
@@ -135,9 +137,35 @@ public class MovieBookingStepDef {
         seatPopUp.clickSelectSeats();
     }
 
+    @Then("verify the selected movie in seat selection page")
+    public void verifyTheSelectedMovieInSeatSelectionPage() {
+        String actualMovieName = theatreSeatSelectionPage.getMovieName();
+        Assert.assertEquals(actualMovieName, movieName, "Movie name doesn't match in seat selection page");
+    }
+
+    @And("verify the selected theatre name")
+    public void verifyTheSelectedTheatreName() {
+        String actualTheatreName = theatreSeatSelectionPage.getTheatreName();
+        Assert.assertEquals(actualTheatreName, theatreName, "Theatre name doesn't match in seat selection page");
+    }
+
+    @And("verify the seat count")
+    public void verifyTheSeatCount() {
+        Assert.assertEquals(theatreSeatSelectionPage.getSeatCount(), 1, "Seat count doesn't match");
+    }
+
+    @And("print the seat numbers which have adjacent empty seats")
+    public void printTheSeatNumbersWhichHaveAdjacentEmptySeats() {
+        List<WebElement> rowsWithSeats = theatreSeatSelectionPage.getAllRows();
+
+        for (int rowIndex = 0 ; rowIndex < rowsWithSeats.size() - 1; rowIndex++) {
+            theatreSeatSelectionPage.displaySeatsWithAdjacentAvailability(rowsWithSeats.get(rowIndex), rowIndex + 1);
+        }
+    }
+
     @After
     public void tearDown() {
-//        webDriver.quit();
+        webDriver.quit();
     }
 
 }

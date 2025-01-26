@@ -26,4 +26,5 @@ Feature: Book movie ticket
 	Then verify the selected movie in seat selection page
 	And verify the selected theatre name
 	And verify the seat count
+	And print the seat numbers which have adjacent empty seats
 
