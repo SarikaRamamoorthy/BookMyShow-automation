@@ -1,15 +1,15 @@
 package stepDefinitions;
 
+import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testng.Assert;
-import pages.HomePage;
+import pages.*;
 
 import java.util.List;
 import java.util.Properties;
@@ -20,20 +20,23 @@ import io.cucumber.java.en.Given;
 
 public class MovieBookingStepDef {
 
-    private RemoteWebDriver webDriver;
-    private Properties properties;
+    public static final RemoteWebDriver webDriver = new ChromeDriver();
+    public static final Properties properties = new Properties();
 
     private HomePage homePage;
+    private LocationPopUp locationPopUp;
+    private MovieDetailsPage movieDetailsPage;
+    private TheatreDetailsPage theatreDetailsPage;
+    private SeatPopUp seatPopUp;
+
     private String location;
+    private String movieName;
+    private String theatreName;
 
     @Before
     public void initialize() {
-
-//        webDriver = new ChromeDriver();
-        webDriver = new FirefoxDriver();
         webDriver.manage().window().maximize();
 
-        properties = new Properties();
         try {
             FileInputStream propertyFile = new FileInputStream(System.getProperty("user.dir")+"/src/test/resources/config.properties");
             properties.load(propertyFile);
@@ -43,7 +46,10 @@ public class MovieBookingStepDef {
             System.out.println("Exception found in loading properties into property file");
         }
 
-        homePage = new HomePage(webDriver, properties);
+        homePage = new HomePage();
+        locationPopUp = new LocationPopUp();
+        movieDetailsPage = new MovieDetailsPage();
+        seatPopUp = new SeatPopUp();
 
         location = properties.getProperty("location");
     }
@@ -53,19 +59,19 @@ public class MovieBookingStepDef {
         homePage.goToHomePage(properties.getProperty("base.uri"));
     }
 
-    @When("the user searches the location")
-    public void theUserSearchesTheLocation() {
-        homePage.searchLocation(location);
+    @When("the user searches for the location")
+    public void theUserSearchesForTheLocation() {
+        locationPopUp.searchLocation(location);
     }
 
     @Then("the relevant location should be displayed and selected")
     public void theRelevantLocationShouldBeDisplayedAndSelected() {
-        List<WebElement> suggestedCitiesWebElements = homePage.getCitiesSuggestion();
+        List<WebElement> suggestedCitiesWebElements = locationPopUp.getCitiesSuggestion();
 
         boolean isLocationPresent = false;
         for (WebElement city : suggestedCitiesWebElements) {
             if (city.getText().equalsIgnoreCase(location)) {
-                homePage.selectLocation(city);
+                locationPopUp.selectLocation(city);
                 isLocationPresent = true;
                 break;
             }
@@ -81,21 +87,57 @@ public class MovieBookingStepDef {
 
     @When("user selects the movie")
     public void userSelectsTheMovie() {
-        homePage.selectMovie();
+        movieName = homePage.selectMovie();
+    }
+
+    @Then("verify the selected movie")
+    public void verifyTheSelectedMovie() {
+        String actualMovieName = movieDetailsPage.getMovieName();
+        Assert.assertEquals(actualMovieName, movieName, "Movie name doesn't match in movie details page");
     }
 
     @And("user selects book ticket")
     public void userSelectsBookTicket() {
-        homePage.selectBookTicket();
+        movieDetailsPage.selectBookTicket();
     }
 
     @And("user selects language and format")
     public void userSelectsLanguageAndFormat() {
-        homePage.selectLanguageAndFormat();
+        movieDetailsPage.selectLanguageAndFormat();
     }
 
-//    @When("the user searches the movie name")
-//    public void theUserSearchesTheMovieName() {
-//        homePage.searchMovie();
-//    }
+    @Then("verify the selected movie in theatre details page")
+    public void verifyTheSelectedMovieInTheatreDetailsPage() {
+        String actualMovieName = theatreDetailsPage.getMovieName();
+        Assert.assertEquals(actualMovieName, movieName, "Movie name doesn't match in theatre details page");
+    }
+
+    @When("the user selects a theatre and show timings, prioritizing fast filling or an available slot")
+    public void theUserSelectsATheatreAndShowTimingsPrioritizingFastFillingOrAnAvailableSlot() {
+        List<WebElement> fastFillingSlots = theatreDetailsPage.getFastFillingSlots();
+        if (!fastFillingSlots.isEmpty()) {
+            theatreName = theatreDetailsPage.getTheatreName(fastFillingSlots.getFirst());
+            fastFillingSlots.getFirst().click();
+        } else {
+            List<WebElement> availableSlots = theatreDetailsPage.getAvailableSlots();
+            theatreName = theatreDetailsPage.getTheatreName(availableSlots.getFirst());
+            availableSlots.getFirst().click();
+        }
+    }
+
+    @And("the user selects the number of seats")
+    public void theUserSelectsTheNumberOfSeats() {
+        seatPopUp.selectSeatCount();
+    }
+
+    @And("the clicks select seat button")
+    public void theClicksSelectSeatButton() {
+        seatPopUp.clickSelectSeats();
+    }
+
+    @After
+    public void tearDown() {
+//        webDriver.quit();
+    }
+
 }
